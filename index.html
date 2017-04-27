@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html ng-app="JukeboxApp">
+  	<head>
+	  <meta charset="UTF-8" />
+	  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	  <link rel="stylesheet" type="text/css" href="./Semantic-UI-master/src/sem.css"/>
+	  <link rel="stylesheet" type="text/css" href="./themes/basic/icon.min.css"/>
+	  <title>Jukebox</title>
+	  
+	  <!--- Example Libs -->
+
+	  <script src="./Semantic-UI-master/examples/assets/library/jquery.min.js"></script>
+	  <script src="./Semantic-UI-master/src/definitions/modules/sticky.js"></script>
+	  <script src="./Semantic-UI-master/src/definitions/modules/sidebar.js"></script>
+	  <script src="./js/angularjs/angular-1.5.8/angular.js"></script>
+	  <script src="./js/angularjs/controllers/controller.js"></script>
+	  <script src="./js/angularjs/services/services.js"></script>
+	  <script src="./js/angularjs/app.js"></script>
+	  <script src="./Semantic-UI-master/src/definitions/modules/progress.js"></script>
+
+	</head> 
+
+	<script>
+		
+		$(document).ready(function() {
+			$('.ui.fixed.sticky').sticky({
+				context:"#currentSong"
+			});
+		});
+
+	</script>
+	<!-- BODY -->
+
+	<body ng-controller="SoundsCtrl" style="background-color:{{style.color}}">
+
+	  	<div class="ui sidebar inverted vertical menu">
+	  		<div class="item" ng-show="isAdmin">
+	  			<h4> Administrator </h4><h4 style="color:grey">JukeBox IP: {{ipAdress}}</h4>
+	  		</div>
+	    	<div class="item" ng-show="!isAdmin">
+	    		<h4> Admin </h4>
+	    	  	<div class="ui inverted input">
+  					<input type="text" placeholder="login">
+				</div>
+				<div class="ui inverted input" style="margin-top:10px;">
+  					<input type="text" placeholder="password">
+				</div>
+				<div class="ui green button" ng-click="logAsAdmin()" style="margin-top:10px;">
+  					Log in
+				</div>
+	    	</div>
+	    	<div class="item">
+	    		<h4> JukeBox IP </h4>
+	    	  	<div class="ui inverted input">
+  					<input type="text" ng-model="ipAdressTmp" placeholder="Adress">
+				</div>
+				<div class="ui green button" ng-click="loadNewPlaylist()" style="margin-top:10px;">
+  					Access
+				</div>
+	    	</div>
+	    	<!-- <div class="item">
+	    	  	<i ng-class="style.class" ng-click="changeStyle()"></i>
+	    	</div> -->
+	    	
+	  	</div>
+	   	<div class="pusher">
+
+	   		<div ng-click ="togleSidebar()" class="ui black big right attached fixed button">
+  				<i class="settings icon"></i>
+			</div>
+
+	  		<div id="container" style="width:45%; background-color:{{style.color}}" class="ui container">
+	  			
+	  			<img class="ui fluid image" src="./pictures/logo.png">
+	  			<div style="margin-top:15%; margin-bottom:15%">
+  					<div style="padding-left:10%; padding-right:10%;" class="ui fluid huge action input">
+  						<input ng-model="urlToAdd" placeholder="url...">
+  						<button class="ui positive huge button" ng-click="submitNewSound(ipAdress, urlToAdd)">Submit</button>
+  					</div>
+				</div>
+			
+				
+	   			<div  class="ui black divided selection list">
+	   				<div id="currentSong" class="item ui fixed sticky" ng-cloak>
+						<div class="ui inverted  segment" style="margin-top: -80px;" ng-show="isPlayingMusic">
+							<div class="ui tiny inverted red progress" data-value="{{currentSongPlay.current_time}}" data-total="{{currentSongPlay.length}}">
+  								<div class="bar"></div>
+							  	<div class="label">{{currentSongPlay.current_time_as_string}} / {{currentSongPlay.length_as_string}}</div>
+							</div>
+							<div class="ui grid">
+								<div class="twelve wide column">
+									<h3 ng-cloak>{{currentSongPlay.title}}</h3>
+								</div>
+								<div class="four wide column">
+									<div style="margin-left: 70%;">
+									<i ng-show="isAdmin" class="play link icon"></i>
+									<i ng-show="isAdmin" class="forward link icon"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div ng-show="!isPlayingMusic">
+							<h3 style="text-align:center"> There is no song playing, add one !</h3>
+						</div>
+					</div>
+					<div class="item" ng-mouseleave="hideVotes(sound)" ng-mouseenter="showVotes(sound)" ng-hover="changeBackground({{sound.votes}})" ng-repeat="sound in sounds | orderBy: 'votes': true" ng-cloak>
+	   					<div class="ui grid">
+	   						<div class="two wide column">
+	   				 			<a style="float:left; line-height: 1em;" class="ui green basic label"><span style="color:grey">{{sound.votes}}<i class="grey 
+	   				 		music icon"></i></span></a>
+	   				 		</div>
+	   				 		<div class="twelve wide column">
+								<p style="text-align:center; color:grey; margin:auto; font-size:1.3em" class="left aligned"><b>{{sound.title}}</b></p>
+							</div>
+							<div class="two wide column">
+	   			 				<i ng-show="sound.showVotes"  style="float:right;" ng-click="increasePointsOf(ipAdress, sound)" class="link green plus icon"></i>
+	   							<i ng-show="sound.showVotes"  style="float:right;" ng-click="decreasePointsOf(ipAdress, sound)" class="link red minus icon"></i>
+	   						</div>
+	   					</div>	
+	   				 </div>
+
+	   			</div>
+	  		</div>
+		</div>
+		<script>
+		var global_currentSongTimeInterval;
+
+		</script>
+	</body>
+</html>
