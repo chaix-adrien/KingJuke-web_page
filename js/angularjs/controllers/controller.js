@@ -9,7 +9,8 @@ JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', 
       $scope.ipAdressTmp;
       $scope.isPlayingMusic;
       $scope.urlToAdd = "";
-      $scope.adressInput = "ui inverted input"
+      $scope.adressInput = "ui inverted input";
+      $scope.port = 9000;
       
    	$scope.newSoundUrl = "";
       $scope.style = {
@@ -30,7 +31,7 @@ JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', 
       }
 
       $scope.increasePointsOf = function(ipAdress, sound) {
-         SoundsService.positiveVote(ipAdress, sound.title,
+         SoundsService.positiveVote(ipAdress, $scope.port, sound.title,
             function() {
                sound.points += 1;
             },
@@ -41,7 +42,7 @@ JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', 
       }
 
       $scope.decreasePointsOf = function(ipAdress, sound) {
-         SoundsService.negativeVote(ipAdress, sound.title,
+         SoundsService.negativeVote(ipAdress, $scope.port, sound.title,
             function() {
                sound.points -= 1;
             },
@@ -54,7 +55,7 @@ JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', 
       $scope.submitNewSound = function(ipAdress, urlYoutube) {
          $scope.urlToAdd = "";
          var tags = ["porn", "Winnie L'ourson"];
-         SoundsService.addNewSong(ipAdress, urlYoutube, tags,
+         SoundsService.addNewSong(ipAdress, $scope.port, urlYoutube, tags,
             function() {
                // Refresh playlist on dashboard
                $scope.getPlaylist();
@@ -140,7 +141,7 @@ JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', 
          }, 1000);
 
          SoundsService.getPlaylist(
-            $scope.ipAdress,
+            $scope.ipAdress, $scope.port,
             function (data) {
 
                //get song in playlist;

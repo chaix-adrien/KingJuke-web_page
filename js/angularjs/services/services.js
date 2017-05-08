@@ -5,20 +5,20 @@ app.factory('SoundsService', ['$http', function($http) {
 	
 	return {
 		
-		getPlaylist: function (ipAdress, successCallback, failureCallback) {
+		getPlaylist: function (ipAdress, port, successCallback, failureCallback) {
 			return $http({
 				method: "GET",
-				url: "http://"+ ipAdress + ":9090/playlist",
+				url: "http://"+ ipAdress + ":" + port + "/playlist",
 				headers: {
 					'Accept': 'text/plain'
 				}
 			}).then(successCallback, failureCallback);
 		},
 
-		addNewSong: function(ipAdress, urlNewSong, tags, successCallback, failureCallback) {
+		addNewSong: function(ipAdress, port, urlNewSong, tags, successCallback, failureCallback) {
 			return $http({
 				method: "POST",
-				url: "http://"+ ipAdress + ":9090/playlist",
+				url: "http://"+ ipAdress + ":" + port + "/playlist",
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
 					'Accept': 'application/json'
@@ -30,30 +30,30 @@ app.factory('SoundsService', ['$http', function($http) {
 			}).then(successCallback, failureCallback);
 		},
 
-		positiveVote: function(ipAdress, title, successCallback, failureCallback) {
+		positiveVote: function(ipAdress, port, title, successCallback, failureCallback) {
 			return $http({
 				method: "POST",
-				url: "http://"+ ipAdress + ":9090/up/" + title,
+				url: "http://"+ ipAdress + ":" + port + "/up/" + title,
 				headers: {
 					'Accept': 'text/plain'
 				}
 			})
 		},
 
-		negativeVote: function(ipAdress, title, successCallback, failureCallback) {
+		negativeVote: function(ipAdress, port, title, successCallback, failureCallback) {
 			return $http({
 				method: "POST",
-				url: "http://"+ ipAdress + ":9090/down/" + title,
+				url: "http://"+ ipAdress + ":" + port + "/down/" + title,
 				headers: {
 					'Accept': 'text/plain'
 				}
 			})
 		},
 
-		removeVoteToSong: function(ipAdress, title, successCallback, failureCallback) {
+		removeVoteToSong: function(ipAdress, port, title, successCallback, failureCallback) {
 			return $http({
 				method: "POST",
-				url: "http://"+ ipAdress + ":9090/playlist",
+				url: "http://"+ ipAdress + ":" + port + "/playlist",
 				headers: {
 					'Accept': 'text/plain'
 				}
