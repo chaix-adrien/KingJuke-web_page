@@ -9,6 +9,7 @@ JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', 
       $scope.ipAdressTmp;
       $scope.isPlayingMusic;
       $scope.urlToAdd = "";
+      $scope.adressInput = "ui inverted input"
       
    	$scope.newSoundUrl = "";
       $scope.style = {
@@ -170,10 +171,11 @@ JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', 
                } else {
                   $scope.currentSongPlay = null;
                }
-               
+               $scope.adressInput = "ui inverted input";
             },
             function () {
-               // error
+               $scope.adressInput = "ui input error";
+               $scope.ipAdress = "Invalid IP ADRESS";
             }
          );
          if ($scope.currentSongPlay) {

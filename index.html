@@ -51,17 +51,22 @@
 				</div>
 	    	</div>
 	    	<div class="item">
-	    		<h4> JukeBox IP </h4>
-	    	  	<div class="ui inverted input">
-  					<input type="text" ng-model="ipAdressTmp" placeholder="Adress">
+	    		<h4> JukeBox IP - {{ipAdress}}</h4>
+	    	  	<div ng-class="adressInput">
+  					<input type="text" ng-model="ipAdressTmp" placeholder="Adress ">
+				</div>
+				<div ng-class="adressInput" style="margin-top:10px;">
+  					<input type="text" ng-model="ipAdressTmp" placeholder="Port ">
 				</div>
 				<div class="ui green button" ng-click="loadNewPlaylist()" style="margin-top:10px;">
   					Access
 				</div>
 	    	</div>
-	    	<!-- <div class="item">
-	    	  	<i ng-class="style.class" ng-click="changeStyle()"></i>
-	    	</div> -->
+	    	<div class="item">
+	    		<div class="ui green button" ng-click="changeStyle()" style="margin-top:10px;">
+	    	  	<i ng-class="style.class" ></i>
+	    	  	</div>
+	    	</div>
 	    	
 	  	</div>
 	   	<div class="pusher">
@@ -72,8 +77,8 @@
 
 	  		<div id="container" style="width:45%; background-color:{{style.color}}" class="ui container">
 	  			
-	  			<img class="ui fluid image" src="./pictures/logo.png">
-	  			<div style="margin-top:15%; margin-bottom:15%">
+	  			<img class="ui centered image" src="./pictures/logo.png">
+	  			<div style="margin-top:5%; margin-bottom:5%">
   					<div style="padding-left:10%; padding-right:10%;" class="ui fluid huge action input">
   						<input ng-model="urlToAdd" placeholder="url...">
   						<button class="ui positive huge button" ng-click="submitNewSound(ipAdress, urlToAdd)">Submit</button>
