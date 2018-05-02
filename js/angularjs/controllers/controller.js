@@ -3,185 +3,143 @@ var JukeboxModule = angular.module('JukeboxModule', []);
 
 JukeboxModule.controller('SoundsCtrl', ['$scope', '$interval', 'SoundsService', function ($scope, $interval, SoundsService) {
 
-   	$scope.sounds;
-      $scope.isAdmin = false;
-      $scope.ipAdress;
-      $scope.ipAdressTmp;
-      $scope.isPlayingMusic;
-      $scope.urlToAdd = "";
-      $scope.adressInput = "ui inverted input";
-      $scope.port = 9000;
-      
-   	$scope.newSoundUrl = "";
-      $scope.style = {
-         "class"  : "black link big minus icon",
-         "color"  : "white"
-      }
+   // var used for get input and try to connect with this parameters
+   $scope.addressToConnect = {
+      ip: null,
+      port: null
+   };
 
-      $scope.showVotes = function(sound) {
-         sound.showVotes = true;
-      }
-
-      $scope.hideVotes = function(sound) {
-         sound.showVotes = false;
-      }
-
-      $scope.togleSidebar = function() {
-         $(".ui.sidebar").sidebar('toggle');
-      }
-
-      $scope.increasePointsOf = function(ipAdress, sound) {
-         SoundsService.positiveVote(ipAdress, $scope.port, sound.title,
-            function() {
-               sound.points += 1;
-            },
-            function () {
-               //error
-            }
-         );
-      }
-
-      $scope.decreasePointsOf = function(ipAdress, sound) {
-         SoundsService.negativeVote(ipAdress, $scope.port, sound.title,
-            function() {
-               sound.points -= 1;
-            },
-            function () {
-               // error
-            }
-         );
-      }
-
-      $scope.submitNewSound = function(ipAdress, urlYoutube) {
-         $scope.urlToAdd = "";
-         var tags = ["porn", "Winnie L'ourson"];
-         SoundsService.addNewSong(ipAdress, $scope.port, urlYoutube, tags,
-            function() {
-               // Refresh playlist on dashboard
-               $scope.getPlaylist();
-
-            }, function() {
-               // error
-            })
-      }
-
-
-
-      $scope.changeStyle = function () {
-         if ($scope.style["color"] == "black") {
-            $scope.style = {
-               "class"  : "black link big minus icon",
-               "color"  : "white"
-            }
-         } else {
-            $scope.style = {
-               "class"  : "grey link plus big icon",
-               "color"  : "black"
-            }
-         }
-      }
-
-      $scope.loadNewPlaylist = function() {
-         $scope.ipAdress = $scope.ipAdressTmp;
-         $scope.ipAdressTmp = "";
-         $interval($scope.getPlaylist, 3000);
-         
-      }
-
-//
-// ADMIN FUNCTIONS
-//
-
-
-      $scope.logAsAdmin = function() {
-            
-      }
-
-      $scope.nextSong = function() {
-         if ($scope.isAdmin) {
-            SoundsService.goToNextSong();
-         }
-      }
-
-      $scope.playSong = function() {
-         if ($scope.isAdmin) {
-            SoundsService.playSong();
-         }
-      }
-
-      $scope.pauseSong = function() {
-         if ($scope.isAdmin) {
-            SoundsService.pauseSong();
-         }
-      }
-
-      $scope.deleteSongFromPlaylist = function(songTitle) {
-         if ($scope.isAdmin) {
-            SoundsService.deleteSong(songTitle);
-         }      
-      }
-
-
-//
-// PRIVATE FUNCTION
-//
-
-      $scope.getPlaylist = function() {
-         $interval.cancel(global_currentSongTimeInterval);
-         global_currentSongTimeInterval = $interval(function() {
-            $scope.currentSongPlay.current_time++;
-            var seconds = $scope.currentSongPlay.current_time % 60;
-            if (seconds < 10) {
-               seconds = "0" + seconds;
-            }
-            $scope.currentSongPlay.current_time_as_string = Math.floor($scope.currentSongPlay.current_time / 60) + ":" + seconds;
-            $(".ui.tiny.inverted").progress({
-               percent: $scope.currentSongPlay.current_time * 100 / $scope.currentSongPlay.length
-            });
-         }, 1000);
-
-         SoundsService.getPlaylist(
-            $scope.ipAdress, $scope.port,
-            function (data) {
-
-               //get song in playlist;
-               $scope.sounds = [];
-               for (var i = 0; i < data.data.playlist.length; i++) {
-                  var song = {};
-                  song["title"] = data.data.playlist[i].title;
-                  song["votes"] = data.data.playlist[i].score;
-                  song["showVotes"] = false;
-                  $scope.sounds.push(song);
-               }
+   $scope.currentSong = null;
+   $scope.isConnected = false;
+   $scope.songsList = [];
    
-               // get song which is currently playing
-               if (data.data.first_song.length > 0) {
-                  $scope.currentSongPlay = data.data.first_song
-                  var seconds = $scope.currentSongPlay.current_time % 60;
-                  if (seconds < 10) {
-                     seconds = "0" + seconds;
-                  }
-                  $scope.currentSongPlay.current_time_as_string = Math.floor($scope.currentSongPlay.current_time / 60) + ":" + seconds;
-                  seconds = $scope.currentSongPlay.length % 60
-                  if (seconds < 10) {
-                     seconds = "0" + seconds;
-                  }
-                  $scope.currentSongPlay.length_as_string = Math.floor($scope.currentSongPlay.length / 60) + ":" + seconds;
+   $scope.address = {
+      ip: null,
+      port: null
+   };
 
-               
-               } else {
-                  $scope.currentSongPlay = null;
-               }
-               $scope.adressInput = "ui inverted input";
-            },
-            function () {
-               $scope.adressInput = "ui input error";
-               $scope.ipAdress = "Invalid IP ADRESS";
+   var intervalUpdatePlaylist = null;
+   var intervalUpdateCurrentSongSeconds = null;
+
+   $scope.getPlaylistFirstTime = function(ipaddr, port) {
+      SoundsService.getPlaylist(
+         ipaddr,
+         port,
+         function(resp) {
+            $scope.address.ip = ipaddr;
+            $scope.address.port = port;
+            $scope.isConnected = true;
+
+            $scope.songsList = resp.data.playlist;
+            $scope.currentSong = resp.data.first_song;
+
+            if ($scope.currentSong != undefined && $scope.currentSong.current_time != undefined && $scope.currentSong.current_time != null) {
+               $('#timeBar').progress({
+                  duration:$scope.currentSong.current_time,
+                  total:$scope.currentSong.current_time,
+                  value:0
+               });
             }
-         );
-         if ($scope.currentSongPlay) {
-            $scope.isPlayingMusic = true;
+            isSuccessfullyConnected();
+         },
+         function() {
+            $scope.isConnected = false;
          }
+      );
+   }
+
+   $scope.getPlaylist = function(ipaddr, port) {
+      
+      SoundsService.getPlaylist(
+         ipaddr,
+         port,
+         function(resp) {
+            $scope.songsList = resp.data.playlist;
+            $scope.currentSong = resp.data.first_song;
+
+            if ($scope.currentSong != undefined && $scope.currentSong.current_time != undefined && $scope.currentSong.current_time != null) {
+               $('#timeBar').progress({
+                  duration:$scope.currentSong.current_time,
+                  total:$scope.currentSong.length,
+                  value:$scope.currentSong.current_time
+               });
+            }
+         },
+         null
+      );
+   }
+
+   $scope.connectToServer = function(ipaddr, port) {
+      if (intervalUpdatePlaylist != null) {
+         $interval.cancel(intervalUpdatePlaylist);
       }
+      if (intervalUpdateCurrentSongSeconds != null) {
+         $interval.cancel(intervalUpdateCurrentSongSeconds);
+      }
+      $scope.getPlaylistFirstTime(ipaddr, port);
+   };
+
+   $scope.sendPositiveVote = function(song) {
+      SoundsService.positiveVote(
+         $scope.address.ip,
+         $scope.address.port,
+         song.title,
+         function () {
+            song.score += 1;
+         },
+         function () {
+            
+         }
+      );
+   };
+
+   $scope.sendNegativeVote = function(song) {
+      SoundsService.negativeVote(
+         $scope.address.ip,
+         $scope.address.port,
+         song.title,
+         function () {
+            song.score -= 1;
+         },
+         function () {
+            
+         }
+      );
+   };
+
+   $scope.postSong = function(urlSong) {
+      var tags = [];
+      $scope.url = "";
+      SoundsService.addNewSong(
+         $scope.address.ip,
+         $scope.address.port, 
+         urlSong, 
+         tags,
+         null,
+         function() {
+            
+         }
+      );
+   };
+
+   //
+   // Private functions
+   //
+   function increaseCurrentSongSeconds(valueToAdd) {
+      if ($scope.currentSong.playing)
+      {
+         $scope.currentSong.current_time += valueToAdd;
+         $('#timeBar').progress('increment');
+      }
+   }
+
+   function isSuccessfullyConnected() {
+      // if user is connected to a server, the playlist is regulary updated
+      $('.ui.basic.modal').modal('hide');
+      intervalUpdatePlaylist = $interval($scope.getPlaylist, 3000, 0, true, $scope.address.ip, $scope.address.port);
+      if ($scope.currentSong != null && $scope.currentSong.current_time != null) {
+         intervalUpdateCurrentSongSeconds = $interval(increaseCurrentSongSeconds, 1000, 0, true, 1);
+      }
+   }
 
 }]);

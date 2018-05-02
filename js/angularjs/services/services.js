@@ -6,12 +6,13 @@ app.factory('SoundsService', ['$http', function($http) {
 	return {
 		
 		getPlaylist: function (ipAdress, port, successCallback, failureCallback) {
+			var vurl = "http://"+ ipAdress + ":" + port + "/playlist";
 			return $http({
-				method: "GET",
-				url: "http://"+ ipAdress + ":" + port + "/playlist",
+				url: vurl,
+				method: 'GET',
 				headers: {
-					'Accept': 'text/plain'
-				}
+                    'Content-Type': 'application/json; charset=utf-8'
+        		}
 			}).then(successCallback, failureCallback);
 		},
 

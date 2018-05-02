@@ -1,0 +1,113 @@
+<html ng-app="JukeboxApp">
+
+  	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="./Semantic-UI-master/src/sem.css"/>
+		<link rel="stylesheet" type="text/css" href="./themes/basic/icon.min.css"/>
+		<title>KingJUke Dashboard</title>
+
+		<script src="./js/angularjs/angular-1.5.8/angular.js"></script>
+		<script src="./js/angularjs/controllers/controller.js"></script>
+		<script src="./js/angularjs/services/services.js"></script>
+	</head>
+
+	<body ng-controller="SoundsCtrl" style="overflow-y: hidden">
+		<div class="ui container">
+
+			<!-- Connection Modal -->
+			<div class="ui basic modal">
+				<form class="ui inverted form">
+				 	<h4 class="ui inverted dividing header">Connection Informations</h4>
+					<div class="two fields">
+    					<div class="field">
+    						<label>Server IP Address</label>
+  		  					<input ng-model="addressToConnect.ip" name="first-name" placeholder="Server IP Address" type="text">
+  						</div>
+  						<div class="field">
+    						<label>Server Port</label>
+    						<input ng-model="addressToConnect.port" name="last-name" placeholder="Server port" type="text">
+  						</div>
+  					</div>
+  					<div class="actions">
+  						<div class="ui inverted red button" onclick="cancelConnectionModal()" type="submit"><i class="remove icon"></i> Cancel</div>
+  						<div class="ui inverted green button" ng-click="connectToServer(addressToConnect.ip, addressToConnect.port)" type="submit"><i class="checkmark icon"></i>Connect</div>
+  					</div>
+				</form>
+  			</div>
+
+  			<!-- Header (title + image) -->
+  			<div class="ui basic center aligned segment">
+  				<img class="ui centered small circular image" src="pictures/music.png">
+  				<h1> KingJuke Dashbord </h1>
+
+  				<div ng-show="isConnected" class="ui action input" style="width:55%">
+  					<input ng-model="url" placeholder="URL Youtube..." data-_extension-text-contrast="" type="text">
+  					<button class="ui button" ng-click="postSong(url)" data-_extension-text-contrast="">Send</button>
+				</div>
+  			</div>
+			
+			<!-- If is not connected, it shows connection button -->
+			<div ng-show="!isConnected" class="ui basic center aligned segment" style="padding-top: 20%">
+  				<button class="ui large inverted green button" onclick="showConnectionModal()">
+  					Connect to a server
+  				</button>
+			</div>
+
+  			<!-- Song currently played -->
+  			<div ng-show="isConnected" style="width:55%; left:22.5%" class="ui center aligned basic segment">
+				<div class="ui tiny orange progress" data-value="{{currentSong.current_time}}" data-total="{{currentSong.length}}" id="timeBar">
+					<div class="bar"></div>
+					<div class="label"></div>
+				</div>
+				<div class="label">{{currentSong.title}}</div>
+  			</div>
+
+  			<!-- Song list -->
+  			<div ng-show="isConnected" class="ui basic segment">
+				<div class="ui segments" style="height: 50%; overflow-y: scroll;" >
+					<div class="ui segment" ng-repeat="song in songsList | orderBy:'-score'">
+  						<div class="ui grid">
+	   						<div class="three wide column">
+	   							<div class="statistic">
+    								<div class="value">
+     	 								<i class="music large icon"></i> {{song.score}}
+    								</div>
+  								</div>
+	   				 		</div>
+	   				 		<div class="twelve wide column">
+								<b style="font-size: 1.28rem;">{{song.title}}</b>
+							</div>
+							<div class="one wide column">
+	   				 			<i class="link chevron up icon" style="float: right; margin-top: -14px;" ng-click="sendPositiveVote()"></i>
+	   							<i class="link chevron down icon" style="float: right; padding-top: 12px;" ng-click="sendNegativeVote()"></i>
+	   						</div>
+	   					</div>
+  					</div>
+  				</div>
+  			</div>
+  		</div>
+
+		
+		<script src="./js/angularjs/app.js"></script>
+		<script src="./js/Jquery/jquery.min.js"></script>
+		<script src="./js/Semantic-UI/semantic.min.js"></script>
+  		<script>
+			function showConnectionModal()
+			{
+				$('.ui.basic.modal').modal('show');
+			}
+
+			function cancelConnectionModal()
+			{
+				$('.ui.basic.modal').modal('hide');
+			}
+
+			$('.ui.checkbox').checkbox();
+
+		</script>
+
+	</body>
+	
+</html>
